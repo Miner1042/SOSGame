@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="320.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sosgame.CreateGameController">
+   <children>
+      <Text layoutX="75.0" layoutY="110.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Computer Players" wrappingWidth="134.0" />
+      <RadioButton fx:id="bothHuman" layoutX="75.0" layoutY="123.0" mnemonicParsing="false" text="Both Humans">
+         <toggleGroup>
+            <ToggleGroup fx:id="computer" />
+         </toggleGroup></RadioButton>
+      <RadioButton fx:id="hvsc" layoutX="75.0" layoutY="152.0" mnemonicParsing="false" text="Human VS Computer" toggleGroup="$computer" />
+      <RadioButton fx:id="bothComp" layoutX="75.0" layoutY="177.0" mnemonicParsing="false" text="Both Computers" toggleGroup="$computer" />
+      <Text layoutX="272.0" layoutY="110.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Board Size" />
+      <Spinner fx:id="boardSize" layoutX="226.0" layoutY="119.0" />
+      <Text layoutX="458.0" layoutY="110.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Game Type" />
+      <RadioButton fx:id="simple" layoutX="444.0" layoutY="123.0" mnemonicParsing="false" text="Simple">
+         <toggleGroup>
+            <ToggleGroup fx:id="gameType" />
+         </toggleGroup></RadioButton>
+      <RadioButton fx:id="general" layoutX="444.0" layoutY="144.0" mnemonicParsing="false" text="General" toggleGroup="$gameType" />
+      <Button fx:id="startButton" layoutX="274.0" layoutY="225.0" mnemonicParsing="false" onMouseClicked="#startGame" text="Start" />
+   </children>
+</AnchorPane>
