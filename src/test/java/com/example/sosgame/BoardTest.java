@@ -60,6 +60,10 @@ class BoardTest {
         Board test = new Board();
         test.makeBoard(10, "simple");
         test.makeMove(-1, 'S');
-        Assertions.assertEquals(0, test.currentBoard[0][0]);
+        for(int i = 0; i < 10; i++){
+            for(int j = 0; j < 10; j++){
+                Assertions.assertEquals(0,test.currentBoard[i][j]);
+            }
+        }
     }
 }

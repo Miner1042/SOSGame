@@ -26,6 +26,8 @@ public class CreateGameController implements Initializable{
     @FXML
     private RadioButton hvsc;
     @FXML
+    private RadioButton cvsh;
+    @FXML
     private RadioButton bothComp;
     @FXML
     private ToggleGroup computer;
@@ -54,13 +56,25 @@ public class CreateGameController implements Initializable{
 
         if(computer.getSelectedToggle().equals(bothHuman)){
             data.setComputerPlayer(0);
+            data.setNpc2(false);
+            data.setNpc1(false);
         }else if(computer.getSelectedToggle().equals(hvsc)){
             data.setComputerPlayer(1);
+            data.setNpc2(true);
+            data.setNpc1(false);
         }else if(computer.getSelectedToggle().equals(bothComp)){
             data.setComputerPlayer(2);
+            data.setNpc2(true);
+            data.setNpc1(true);
+        }else if(computer.getSelectedToggle().equals(cvsh)){
+            data.setComputerPlayer(3);
+            data.setNpc2(false);
+            data.setNpc1(true);
         }else{
             //error. probably just default to 0
             data.setComputerPlayer(0);
+            data.setNpc2(false);
+            data.setNpc1(false);
         }
 
         Stage gameStage = (Stage) startButton.getScene().getWindow();

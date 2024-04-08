@@ -15,7 +15,8 @@
             <ToggleGroup fx:id="computer" />
          </toggleGroup></RadioButton>
       <RadioButton fx:id="hvsc" layoutX="75.0" layoutY="152.0" mnemonicParsing="false" text="Human VS Computer" toggleGroup="$computer" />
-      <RadioButton fx:id="bothComp" layoutX="75.0" layoutY="177.0" mnemonicParsing="false" text="Both Computers" toggleGroup="$computer" />
+      <RadioButton fx:id="bothComp" layoutX="75.0" layoutY="202.0" mnemonicParsing="false" text="Both Computers" toggleGroup="$computer" />
+      <RadioButton fx:id="cvsh" layoutX="75.0" layoutY="177.0" mnemonicParsing="false" text="Computer VS Human" toggleGroup="$computer" />
       <Text layoutX="272.0" layoutY="110.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Board Size" />
       <Spinner fx:id="boardSize" layoutX="226.0" layoutY="119.0" />
       <Text layoutX="458.0" layoutY="110.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Game Type" />

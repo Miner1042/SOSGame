@@ -17,12 +17,15 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 public class SOSGameController implements Initializable {
     Storage data = Storage.getInstance();
 
     ArrayList<Button> array;
+
+    ComputerPlayer comp = new ComputerPlayer();
 
     Board board;
 
@@ -75,6 +78,10 @@ public class SOSGameController implements Initializable {
 
         //Creating the Game Board
         createBoard(array);
+
+        if(data.getComputerPlayer() == 2 || data.getComputerPlayer() == 3){
+            computerRandomMove();
+        }
     }
 
     public void createBoard(ArrayList<Button> array){
@@ -87,7 +94,6 @@ public class SOSGameController implements Initializable {
         array.forEach(this::setupButton);
 
         board.makeBoard(data.getBoardSize(), data.getGameType());
-
     }
 
     private void setupButton(Button button){
@@ -103,27 +109,33 @@ public class SOSGameController implements Initializable {
     }
 
     private void handleMouseClickedEvent(Button button){
-        setPlayerSymbol(button);
-
-        changeTurn();
+        //add a check for if a point was scored. If so, dont change.
+        handleTheButton(button);
     }
 
-    public void setPlayerSymbol(Button button) {
+    public void stopButtons(Button button) {
+        button.setDisable(true);
+        button.setOpacity(1.0);
+    }
 
+    public boolean setPlayerSymbol(Button button) {
+        boolean check;
         int buttonIndex = array.indexOf(button);
+        button.setDisable(true);
+        button.setOpacity(1.0);
 
         //Sets an S or an O in the clicked Cell
         if ((board.getPlayer() && player1.getSelectedToggle().equals(player1S)) || !board.getPlayer() && player2.getSelectedToggle().equals(player2S)) {
             button.setText("S");
             board.makeMove(buttonIndex, 'S');
+            check = board.pointChecker(buttonIndex, 'S');
         }
         else {
             button.setText("O");
-            board.makeMove(buttonIndex, '0');
+            board.makeMove(buttonIndex, 'O');
+            check = board.pointChecker(buttonIndex, 'O');
         }
-
-        button.setDisable(true);
-        button.setOpacity(1.0);
+        return check;
     }
 
     private void changeTurn(){
@@ -133,6 +145,94 @@ public class SOSGameController implements Initializable {
         }else{
             board.setPlayer(true);
             gameText.setText("Player 1's Turn");
+        }
+    }
+
+    private void handleTheButton(Button button){
+
+        if(!setPlayerSymbol(button)){
+            changeTurn();
+        }
+
+        if(board.endGame()){
+            array.forEach(this::stopButtons);
+            //display who wins
+            if(board.p1score > board.p2score){
+                gameText.setText("Player 1 Wins!");
+            }else if(board.p1score < board.p2score){
+                gameText.setText("Player 2 Wins!");
+            }else{
+                gameText.setText("It's a Draw!");
+            }
+        }
+
+        if(data.getNpc1() && board.getPlayer()){
+            computerRandomMove();
+        }else if(data.getNpc2() && !board.getPlayer()){
+            computerRandomMove();
+        }
+        //System.out.println(array);
+
+
+    }
+
+
+    //Section for NPC
+    public void computerRandomMove(){
+        Button currentMove;
+        int s = board.findWinnerS();
+        int o = board.findWinnerO();
+        System.out.println(s + " " + o);
+        if(s != -1) {
+            if(board.getPlayer()){
+                player1.selectToggle(player1S);
+            }else{
+                player2.selectToggle(player2S);
+            }
+
+            currentMove = array.get(s);
+            handleTheButton(currentMove);
+        }else if(board.findWinnerO() != -1){
+            if(board.getPlayer()){
+                player1.selectToggle(player1O);
+            }else{
+                player2.selectToggle(player2O);
+            }
+
+            currentMove = array.get(o);
+            handleTheButton(currentMove);
+        }else {
+            int x, y, temp, letter;
+            int counter = 0;
+            do{
+                Random rand = new Random();
+                temp = rand.nextInt(data.getBoardSize() * data.getBoardSize());
+                letter = rand.nextInt(2);
+                x = temp % data.getBoardSize();
+                y = temp / data.getBoardSize();
+                counter++;
+                System.out.println("Counter: " + counter + "\nInt: " + temp + "\n" + board.currentBoard[x][y]);
+            }while(board.currentBoard[x][y] != 0);
+            //THIS LOOP IS BUSTED FOR NPC V NPC. put in a tries counter on it and if it passes the number of tries just hard loop through the array and find an open spot. If none exist end the game
+
+            currentMove = array.get(temp);
+
+            //chooses random letter to play
+            if(board.getPlayer()){
+                if(letter == 0){
+                    player1.selectToggle(player1S);
+                }else{
+                    player1.selectToggle(player1O);
+                }
+            }else{
+                if(letter == 0){
+                    player2.selectToggle(player2S);
+                }else{
+                    player2.selectToggle(player2O);
+                }
+            }
+
+            handleTheButton(currentMove);
         }
     }
 }
