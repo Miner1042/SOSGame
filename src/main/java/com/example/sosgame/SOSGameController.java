@@ -119,23 +119,28 @@ public class SOSGameController implements Initializable {
     }
 
     public boolean setPlayerSymbol(Button button) {
-        boolean check;
-        int buttonIndex = array.indexOf(button);
-        button.setDisable(true);
-        button.setOpacity(1.0);
+        if(!board.endGame()) {
+            boolean check;
+            int buttonIndex = array.indexOf(button);
+            button.setDisable(true);
+            button.setOpacity(1.0);
 
-        //Sets an S or an O in the clicked Cell
-        if ((board.getPlayer() && player1.getSelectedToggle().equals(player1S)) || !board.getPlayer() && player2.getSelectedToggle().equals(player2S)) {
-            button.setText("S");
-            board.makeMove(buttonIndex, 'S');
-            check = board.pointChecker(buttonIndex, 'S');
+            //Sets an S or an O in the clicked Cell
+            if ((board.getPlayer() && player1.getSelectedToggle().equals(player1S)) || !board.getPlayer() && player2.getSelectedToggle().equals(player2S)) {
+                button.setText("S");
+                board.makeMove(buttonIndex, 'S');
+                check = board.pointChecker(buttonIndex, 'S');
+                System.out.println("CURRENT MOVE:\nIndex: " + buttonIndex + "\nCurrent Move: S\nMove Counter: " + board.turnCount + "\nPlayer 1: " + board.getPlayer());
+            } else {
+                button.setText("O");
+                board.makeMove(buttonIndex, 'O');
+                check = board.pointChecker(buttonIndex, 'O');
+                System.out.println("CURRENT MOVE:\nIndex: " + buttonIndex + "\nCurrent Move: O\nMove Counter: " + board.turnCount + "\nPlayer 1: " + board.getPlayer());
+            }
+            return check;
+        }else{
+            return false;
         }
-        else {
-            button.setText("O");
-            board.makeMove(buttonIndex, 'O');
-            check = board.pointChecker(buttonIndex, 'O');
-        }
-        return check;
     }
 
     private void changeTurn(){
@@ -159,10 +164,13 @@ public class SOSGameController implements Initializable {
             //display who wins
             if(board.p1score > board.p2score){
                 gameText.setText("Player 1 Wins!");
+                System.out.println("Player 1 Wins!");
             }else if(board.p1score < board.p2score){
                 gameText.setText("Player 2 Wins!");
+                System.out.println("Player 2 Wins!");
             }else{
                 gameText.setText("It's a Draw!");
+                System.out.println("It's a Draw!");
             }
         }
 
@@ -182,7 +190,7 @@ public class SOSGameController implements Initializable {
         Button currentMove;
         int s = board.findWinnerS();
         int o = board.findWinnerO();
-        System.out.println(s + " " + o);
+        //System.out.println(s + " " + o);
         if(!board.endGame()){
             if(s != -1) {
                 if(board.getPlayer()){
@@ -219,7 +227,7 @@ public class SOSGameController implements Initializable {
             x = temp % data.getBoardSize();
             y = temp / data.getBoardSize();
             counter++;
-            System.out.println("Counter: " + counter + "\nInt: " + temp + "\n" + board.currentBoard[x][y]);
+            //System.out.println("Counter: " + counter + "\nInt: " + temp + "\n" + board.currentBoard[x][y]);
         }while(board.currentBoard[x][y] != 0);
 
         currentMove = array.get(temp);
