@@ -183,56 +183,61 @@ public class SOSGameController implements Initializable {
         int s = board.findWinnerS();
         int o = board.findWinnerO();
         System.out.println(s + " " + o);
-        if(s != -1) {
-            if(board.getPlayer()){
-                player1.selectToggle(player1S);
-            }else{
-                player2.selectToggle(player2S);
-            }
-
-            currentMove = array.get(s);
-            handleTheButton(currentMove);
-        }else if(board.findWinnerO() != -1){
-            if(board.getPlayer()){
-                player1.selectToggle(player1O);
-            }else{
-                player2.selectToggle(player2O);
-            }
-
-            currentMove = array.get(o);
-            handleTheButton(currentMove);
-        }else {
-            int x, y, temp, letter;
-            int counter = 0;
-            do{
-                Random rand = new Random();
-                temp = rand.nextInt(data.getBoardSize() * data.getBoardSize());
-                letter = rand.nextInt(2);
-                x = temp % data.getBoardSize();
-                y = temp / data.getBoardSize();
-                counter++;
-                System.out.println("Counter: " + counter + "\nInt: " + temp + "\n" + board.currentBoard[x][y]);
-            }while(board.currentBoard[x][y] != 0);
-            //THIS LOOP IS BUSTED FOR NPC V NPC. put in a tries counter on it and if it passes the number of tries just hard loop through the array and find an open spot. If none exist end the game
-
-            currentMove = array.get(temp);
-
-            //chooses random letter to play
-            if(board.getPlayer()){
-                if(letter == 0){
+        if(!board.endGame()){
+            if(s != -1) {
+                if(board.getPlayer()){
                     player1.selectToggle(player1S);
                 }else{
-                    player1.selectToggle(player1O);
-                }
-            }else{
-                if(letter == 0){
                     player2.selectToggle(player2S);
+                }
+
+                currentMove = array.get(s);
+                handleTheButton(currentMove);
+            }else if(board.findWinnerO() != -1){
+                if(board.getPlayer()){
+                    player1.selectToggle(player1O);
                 }else{
                     player2.selectToggle(player2O);
                 }
-            }
 
-            handleTheButton(currentMove);
+                currentMove = array.get(o);
+                handleTheButton(currentMove);
+            }else {
+                generateRandomPos();
+            }
         }
+    }
+
+    public void generateRandomPos(){
+        Button currentMove;
+        int x, y, temp, letter;
+        int counter = 0;
+        do{
+            Random rand = new Random();
+            temp = rand.nextInt(data.getBoardSize() * data.getBoardSize());
+            letter = rand.nextInt(2);
+            x = temp % data.getBoardSize();
+            y = temp / data.getBoardSize();
+            counter++;
+            System.out.println("Counter: " + counter + "\nInt: " + temp + "\n" + board.currentBoard[x][y]);
+        }while(board.currentBoard[x][y] != 0);
+
+        currentMove = array.get(temp);
+
+        if(board.getPlayer()){
+            if(letter == 0){
+                player1.selectToggle(player1S);
+            }else{
+                player1.selectToggle(player1O);
+            }
+        }else{
+            if(letter == 0){
+                player2.selectToggle(player2S);
+            }else{
+                player2.selectToggle(player2O);
+            }
+        }
+
+        handleTheButton(currentMove);
     }
 }
