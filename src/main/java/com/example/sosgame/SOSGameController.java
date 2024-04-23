@@ -14,6 +14,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class SOSGameController implements Initializable {
 
     ArrayList<Button> array;
 
-    ComputerPlayer comp = new ComputerPlayer();
+    //ComputerPlayer comp = new ComputerPlayer();
 
     Board board;
 
@@ -56,6 +58,12 @@ public class SOSGameController implements Initializable {
     @FXML
     private Text gameText;
 
+    public static final int computerVComputer = 2;
+    public static final int computerVHuman = 3;
+    public static final int invalidValue = -1;
+
+    //Precondition: The start game button in CreateGame.fxml is clicked
+    //Postcondition: SOSGame.fxml is opened
     @FXML
     void newGame(MouseEvent event) throws IOException{
         Stage gameStage = (Stage) newGameButton.getScene().getWindow();
@@ -65,6 +73,8 @@ public class SOSGameController implements Initializable {
         gameStage.setScene(scene);
     }
 
+    //Precondition: SOSGame.fxml is opened
+    //Postcondition: The board is created, all values initialized, and if the computer has the first move it is made
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Initializing the Game Board
@@ -79,11 +89,21 @@ public class SOSGameController implements Initializable {
         //Creating the Game Board
         createBoard(array);
 
-        if(data.getComputerPlayer() == 2 || data.getComputerPlayer() == 3){
+        try{
+            FileWriter fw = new FileWriter("gameOutput");
+            fw.write("");
+            fw.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        if(data.getComputerPlayer() == computerVComputer || data.getComputerPlayer() == computerVHuman){
             computerRandomMove();
         }
     }
 
+    //Precondition: An empty array of buttons is passed in
+    //Postcondition: the array is populated with enough buttons to fill the current board size
     public void createBoard(ArrayList<Button> array){
         for(int i = 0; i < (data.getBoardSize() * data.getBoardSize()); i++){
             Button temp = new Button();
@@ -96,6 +116,8 @@ public class SOSGameController implements Initializable {
         board.makeBoard(data.getBoardSize(), data.getGameType());
     }
 
+    //Precondition: A button object is passed in
+    //Postcondition: The button's height and width are reset
     private void setupButton(Button button){
         button.setPrefHeight(500.0 / data.getBoardSize());
         button.setPrefWidth(500.0 / data.getBoardSize());
@@ -108,41 +130,51 @@ public class SOSGameController implements Initializable {
         });
     }
 
+    //Precondition: A button on the GUI is clicked by the user
+    //Postcondition: the function is called that will actually modify the data of the game
     private void handleMouseClickedEvent(Button button){
         //add a check for if a point was scored. If so, dont change.
         handleTheButton(button);
     }
 
+    //Precondition: A button is passed in
+    //Postcondition: The button cannot be clicked
     public void stopButtons(Button button) {
         button.setDisable(true);
         button.setOpacity(1.0);
     }
 
+    //Precondition: The current button is passed in
+    //Postcondition: The chosen letter is placed on the button, the move is made and documented, and returns true if a point was scored.
     public boolean setPlayerSymbol(Button button) {
         if(!board.endGame()) {
             boolean check;
+            char letter;
             int buttonIndex = array.indexOf(button);
             button.setDisable(true);
             button.setOpacity(1.0);
 
             //Sets an S or an O in the clicked Cell
             if ((board.getPlayer() && player1.getSelectedToggle().equals(player1S)) || !board.getPlayer() && player2.getSelectedToggle().equals(player2S)) {
-                button.setText("S");
-                board.makeMove(buttonIndex, 'S');
-                check = board.pointChecker(buttonIndex, 'S');
-                System.out.println("CURRENT MOVE:\nIndex: " + buttonIndex + "\nCurrent Move: S\nMove Counter: " + board.turnCount + "\nPlayer 1: " + board.getPlayer());
+                letter = 'S';
             } else {
-                button.setText("O");
-                board.makeMove(buttonIndex, 'O');
-                check = board.pointChecker(buttonIndex, 'O');
-                System.out.println("CURRENT MOVE:\nIndex: " + buttonIndex + "\nCurrent Move: O\nMove Counter: " + board.turnCount + "\nPlayer 1: " + board.getPlayer());
+                letter = 'O';
             }
+            button.setText(String.valueOf(letter));
+            board.makeMove(buttonIndex, letter);
+            check = board.pointChecker(buttonIndex, letter);
+            writeMove("CURRENT MOVE:\nGamemode: " + board.gameType + "\nIndex: " + buttonIndex + "\nCurrent Move: " + letter + "\nMove Counter: " + board.turnCount + "\nPlayer 1: " + board.getPlayer() + "\n");
+            //System.out.println("CURRENT MOVE:\nIndex: " + buttonIndex + "\nCurrent Move: S\nMove Counter: " + board.turnCount + "\nPlayer 1: " + board.getPlayer());
             return check;
         }else{
             return false;
         }
     }
 
+
+
+    //Precondition: the function is called. It requires no input
+    //Postcondition: The current player is alternated to the other player
     private void changeTurn(){
         if(board.getPlayer()){
             board.setPlayer(false);
@@ -153,84 +185,84 @@ public class SOSGameController implements Initializable {
         }
     }
 
+    //Precondition: A GUI button is clicked and passed in, or the computer chooses a button and passes it in
+    //Postcondition: The symbol is set and move is made, the game checks if it is over, and if not the computer checks if it should make a move
     private void handleTheButton(Button button){
-
         if(!setPlayerSymbol(button)){
             changeTurn();
         }
-
         if(board.endGame()){
             array.forEach(this::stopButtons);
             //display who wins
             if(board.p1score > board.p2score){
                 gameText.setText("Player 1 Wins!");
-                System.out.println("Player 1 Wins!");
+                writeMove("Player 1 Wins!");
             }else if(board.p1score < board.p2score){
                 gameText.setText("Player 2 Wins!");
-                System.out.println("Player 2 Wins!");
+                writeMove("Player 2 Wins!");
             }else{
                 gameText.setText("It's a Draw!");
-                System.out.println("It's a Draw!");
+                writeMove("It's a Draw!");
             }
         }
-
         if(data.getNpc1() && board.getPlayer()){
             computerRandomMove();
         }else if(data.getNpc2() && !board.getPlayer()){
             computerRandomMove();
         }
-        //System.out.println(array);
-
-
     }
 
 
     //Section for NPC
+
+    //Precondition: The computer decides it should make a move
+    //Postcondition: The computer checks if a move can be made to score a point, if so it is made, if not a random move is made
     public void computerRandomMove(){
-        Button currentMove;
         int s = board.findWinnerS();
         int o = board.findWinnerO();
         //System.out.println(s + " " + o);
         if(!board.endGame()){
-            if(s != -1) {
-                if(board.getPlayer()){
-                    player1.selectToggle(player1S);
-                }else{
-                    player2.selectToggle(player2S);
-                }
-
-                currentMove = array.get(s);
-                handleTheButton(currentMove);
-            }else if(board.findWinnerO() != -1){
-                if(board.getPlayer()){
-                    player1.selectToggle(player1O);
-                }else{
-                    player2.selectToggle(player2O);
-                }
-
-                currentMove = array.get(o);
-                handleTheButton(currentMove);
+            if(s != invalidValue) {
+                getWinningMove(s);
+            }else if(o != invalidValue){
+                getWinningMove(o);
             }else {
                 generateRandomPos();
             }
         }
     }
 
+    //Precondition: A move can be made to score a point
+    //Postcondition: the button is "clicked" by the computer
+    public void getWinningMove(int index){
+        Button currentMove;
+        if(board.getPlayer()){
+            player1.selectToggle(player1S);
+        }else{
+            player2.selectToggle(player2S);
+        }
+
+        currentMove = array.get(index);
+        handleTheButton(currentMove);
+    }
+
+    //Precondition: No move can score a point on the current board
+    //Postcondition: A random button on the board is selected and "clicked" by the computer
     public void generateRandomPos(){
         Button currentMove;
-        int x, y, temp, letter;
-        int counter = 0;
+        int x, y, tempIndex, letter;
+        //int counter = 0;
         do{
             Random rand = new Random();
-            temp = rand.nextInt(data.getBoardSize() * data.getBoardSize());
+            tempIndex = rand.nextInt(data.getBoardSize() * data.getBoardSize());
             letter = rand.nextInt(2);
-            x = temp % data.getBoardSize();
-            y = temp / data.getBoardSize();
-            counter++;
+            x = tempIndex % data.getBoardSize();
+            y = tempIndex / data.getBoardSize();
+            //counter++;
             //System.out.println("Counter: " + counter + "\nInt: " + temp + "\n" + board.currentBoard[x][y]);
         }while(board.currentBoard[x][y] != 0);
 
-        currentMove = array.get(temp);
+        currentMove = array.get(tempIndex);
 
         if(board.getPlayer()){
             if(letter == 0){
@@ -247,5 +279,19 @@ public class SOSGameController implements Initializable {
         }
 
         handleTheButton(currentMove);
+    }
+
+
+    //Precondition: A string that should be recorded is passed in
+    //Postcondition: the string is written to the output file
+    public void writeMove(String words){
+        try{
+            FileWriter fw = new FileWriter("gameOutput", true);
+            fw.write(words);
+            fw.close();
+        }catch(IOException e){
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }
